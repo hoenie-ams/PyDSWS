@@ -39,6 +39,23 @@ You can set parameters like this:
 ```
 get_data(tickers='VOD', fields='P', date_from='-10D', date_to='-0D', freq='D')
 ```
+
+The output is a Pandas DataFrame:
+```
+          Date     VOD
+0   2017-11-10  217.65
+1   2017-11-13  216.00
+2   2017-11-14  227.05
+3   2017-11-15  228.35
+4   2017-11-16  228.45
+5   2017-11-17  228.70
+6   2017-11-20  229.50
+7   2017-11-21  229.75
+8   2017-11-22  228.75
+9   2017-11-23  225.40
+10  2017-11-24  225.50
+```
+
 Please check http://datastream.thomsonreuters.com/DswsClient/Docs/Default.aspx for further documentation.
 
 

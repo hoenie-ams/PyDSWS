@@ -6,14 +6,11 @@ import pandas as pd
 
 class Datastream:
     def __init__(self, username, password):
-        print('TEST - __init__')
         self.username = username
         self.password = password
         self.token = self.get_token(username, password)
 
     def get_token(self, username, password):
-        print('TEST - get_token')
-
         # To get token, first set URL (HTTP Method: GET)
         URL_token = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
                     'username={0}&password={1}'.format(username, password)

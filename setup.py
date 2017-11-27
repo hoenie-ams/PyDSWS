@@ -9,5 +9,10 @@ setup(
     author='Joris Hoendervangers',
     author_email='j.h.hoendervangers@gmail.com',
     description='Python package for Datastream Webservices',
-    long_description=open('README.md').read()
+    long_description=open('README.md').read(),
+    install_requires=[
+        'pandas',
+        'requests'
+      ]
+
 )

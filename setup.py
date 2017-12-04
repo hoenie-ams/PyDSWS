@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='PyDSWS',
-    version='0.03',
+    version='0.05',
     packages=['PyDSWS'],
     url='https://github.com/hoenie-ams/PyDSWS',
     license='MIT',
@@ -13,9 +13,6 @@ setup(
     install_requires=[
         'pandas',
         'requests',
-        'urllib',
-        'datetime',
-        'json'
       ],
     python_requires='>=3'
 

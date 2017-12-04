@@ -1,5 +1,6 @@
 import requests
 import json
+import urllib.parse
 import datetime
 import pandas as pd
 
@@ -10,13 +11,14 @@ class Datastream:
         self.password = password
         self.token = self.get_token(username, password)
 
-    def get_token(self, username, password):
+    @staticmethod
+    def get_token(username, password):
         # To get token, first set URL (HTTP Method: GET)
-        URL_token = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
+        url_token = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
                     'username={0}&password={1}'.format(username, password)
 
         # Retrieve token
-        t = requests.get(URL_token)
+        t = requests.get(url_token)
 
         # Token to JSON format
         token_raw = json.loads(t.text)
@@ -24,40 +26,79 @@ class Datastream:
         # Extract token
         token = token_raw["TokenValue"]
 
-        # Format token for URL
-        token = token.replace("+", "%2B")
-
         return token
 
-    def get_data(self, tickers='VOD', fields='P', date=None, date_from='-10D', date_to='-0D', freq='D'):
-        URL_data = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?token={0}' \
-                   '&instrument={1}&datatypes={2}&datekind=TimeSeries&start={3}&end={4}&freq={5}'\
-            .format(self.token, tickers, fields, date_from, date_to, freq)
+    def get_data(self, tickers, fields, date=None, start='-1D', end='-0D', freq='D', static=False):
+        # Address of the API
+        base = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+
+        # Time series or static request
+        if static:
+            datekind = 'Snapshot'
+            if date:
+                start = date
+        else:
+            datekind = 'TimeSeries'
+
+        # Put all the fields in a request and encode them for requests.get
+        f = {'token': self.token, 'instrument': tickers, 'datatypes': fields, 'datekind': datekind,
+             'start': start, 'end': end, 'freq': freq}
+        f = urllib.parse.urlencode(f)
+
+        url = base + f
 
         # Retrieve data
-        r = requests.get(URL_data)
+        response = requests.get(url)
 
         # Data in JSON
-        text = json.loads(r.text)
+        response_json = json.loads(response.text)
 
-        # Define dates and format for make it human readable
-        dates = pd.DataFrame(text['Dates'])
-        dates = dates[0].str.slice(start=6, stop=16)
-        dates = dates.astype(float)
-        dates = dates.apply(lambda x: datetime.datetime.fromtimestamp(x).strftime('%Y-%m-%d'))
+        df = self.from_json_to_df(response_json)
 
-        # Extract close prices
-        close_price = text['DataTypeValues'][0]['SymbolValues'][0]['Value']
+        return df
 
-        # Close prices in Pandas DataFrame
-        closes = pd.DataFrame(close_price)
+    @staticmethod
+    def from_json_to_df(response_json):
+        dates = response_json['Dates']
 
-        # Concatenate dates and close prices into DataFrame
-        data = pd.concat([dates, closes], axis=1)
+        # If dates is not available, the request is not constructed correctly
+        if dates:
+            dates_converted = []
+            for d in dates:
+                d = d[6:16]
+                d = float(d)
+                d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
+                dates_converted.append(d)
+        else:
+            return 'Error - please check instruments and parameters (time series or static?)'
 
-        # Rename the column
-        data.columns = ['Date', tickers]
+        # Set up the DataFrame
+        df = pd.DataFrame(index=dates_converted)
 
-        return data
+        df.index.name = 'Date'
+
+        # Loop through the values in the response
+        for item in response_json['DataTypeValues']:
+            field = item['DataType']
+            for i in item['SymbolValues']:
+                instrument = i['Symbol']
+                values = i['Value']
+                col = (instrument, field)
+                df[col] = None
+
+                # Time series return a list, Snapshots only a value
+                try:
+                    if values == list:
+                        df[col] = pd.DataFrame(values).values
+                    else:
+                        df[col] = values
+                except ValueError:
+                    df[col] = 'ERROR'
+                    print('ValueError for field: ' + field + ' (instrument: ' + instrument + ')')
+
+        # Use Pandas MultiIndex to get from tuples to two header rows
+        df.columns = pd.MultiIndex.from_tuples(df.columns, names=['Instrument', 'Field'])
+
+        return df
 
 

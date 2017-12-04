@@ -28,6 +28,7 @@ class Datastream:
 
         return token
 
+    # TODO: check what to do with  defaults of 'fields' & 'start'. Errors for: get_data(tickers='USGDP...B'
     def get_data(self, tickers, fields, date=None, start='-1D', end='-0D', freq='D', static=False):
         # Address of the API
         base = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'

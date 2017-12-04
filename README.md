@@ -37,7 +37,7 @@ print(data)
 
 You can set parameters like this:
 ```
-get_data(tickers='VOD', fields='P', date_from='-10D', date_to='-0D', freq='D')
+get_data(tickers='VOD', fields='P', start='-10D', end='-0D', freq='D')
 ```
 
 The output is a Pandas DataFrame:

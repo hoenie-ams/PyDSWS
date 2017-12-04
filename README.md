@@ -38,6 +38,7 @@ print(data)
 You can set parameters like this:
 ```
 get_data(tickers='VOD', fields='P', start='-10D', end='-0D', freq='D')
+*for multiple tickers/fields, just use a comma, for example: fields='P,MV'
 ```
 
 The output is a Pandas DataFrame:

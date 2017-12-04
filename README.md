@@ -18,9 +18,9 @@ pip install PyDSWS
 
 ### Usage
 
-Quick Start:
+Quick Start: 
 
-An example how to retrieve closing prices for Vodafone.
+An example how to retrieve closing prices for Vodafone. 
 1) import the 'PyDSWS' package
 2) authenticate with your username and password
 3) use the 'get_data' function
@@ -37,8 +37,10 @@ print(data)
 
 You can set parameters like this:
 ```
-get_data(tickers='VOD', fields='P', date_from='-10D', date_to='-0D', freq='D')
+get_data(tickers='VOD', fields='P', start='-10D', end='-0D', freq='D')
 ```
+*for multiple tickers/fields, just use a comma, for example: fields='P,MV'
+
 
 The output is a Pandas DataFrame:
 ```

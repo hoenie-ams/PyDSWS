@@ -40,12 +40,12 @@ Please find below examples on how to set parameters for the requests.
 
 For static data:
 ```
-get_data(tickers='VOD', fields='P', date='2017-01-01')
+ds.get_data(tickers='VOD', fields='P', date='2017-01-01')
 ```
 
 For time series:
 ```
-get_data(tickers='VOD', fields='P,MV,VO', start='-10D', end='-0D', freq='D')
+ds.get_data(tickers='VOD', fields='P,MV,VO', start='-10D', end='-0D', freq='D')
 ```
 *for multiple tickers/fields, just use a comma. In this example: fields='P,MV,VO'
 

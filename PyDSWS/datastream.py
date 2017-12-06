@@ -14,56 +14,25 @@ class Datastream:
     @staticmethod
     def get_token(username, password):
         # To get token, first set URL (HTTP Method: GET)
-        url_token = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
+        token_url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
                     'username={0}&password={1}'.format(username, password)
 
         # Retrieve token
-        t = requests.get(url_token)
+        token_raw = requests.get(token_url)
 
         # Token to JSON format
-        token_raw = json.loads(t.text)
+        token_json = json.loads(token_raw.text)
 
         # Extract token
-        token = token_raw["TokenValue"]
+        token = token_json["TokenValue"]
 
         return token
 
-    # TODO: check what to do with  defaults of 'fields' & 'start'. Errors for: get_data(tickers='USGDP...B'
-    def get_data(self, tickers, fields, date=None, start='-1D', end='-0D', freq='D', static=False):
-        # Address of the API
-        base = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
-
-        # Time series or static request
-        if static:
-            datekind = 'Snapshot'
-            if date:
-                start = date
-        else:
-            datekind = 'TimeSeries'
-
-        # Put all the fields in a request and encode them for requests.get
-        f = {'token': self.token, 'instrument': tickers, 'datatypes': fields, 'datekind': datekind,
-             'start': start, 'end': end, 'freq': freq}
-        f = urllib.parse.urlencode(f)
-
-        url = base + f
-
-        # Retrieve data
-        response = requests.get(url)
-
-        # Data in JSON
-        response_json = json.loads(response.text)
-
-        df = self.from_json_to_df(response_json)
-
-        return df
-
     @staticmethod
     def from_json_to_df(response_json):
-        dates = response_json['Dates']
-
         # If dates is not available, the request is not constructed correctly
-        if dates:
+        if response_json['Dates']:
+            dates = response_json['Dates']
             dates_converted = []
             for d in dates:
                 d = d[6:16]
@@ -71,11 +40,10 @@ class Datastream:
                 d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
                 dates_converted.append(d)
         else:
-            return 'Error - please check instruments and parameters (time series or static?)'
+            return 'Error - please check instruments and parameters (time series or static)'
 
         # Set up the DataFrame
         df = pd.DataFrame(index=dates_converted)
-
         df.index.name = 'Date'
 
         # Loop through the values in the response
@@ -89,11 +57,12 @@ class Datastream:
 
                 # Time series return a list, Snapshots only a value
                 try:
-                    if values == list:
+                    if values == list:  # Time series
                         df[col] = pd.DataFrame(values).values
                     else:
-                        df[col] = values
-                except ValueError:
+                        df[col] = values  # Snapshot
+
+                except ValueError:  # In case of ValueError, fill the column with 'ERROR'
                     df[col] = 'ERROR'
                     print('ValueError for field: ' + field + ' (instrument: ' + instrument + ')')
 
@@ -102,4 +71,35 @@ class Datastream:
 
         return df
 
+    def get_data(self, tickers, fields='', date='', start='', end='', freq=''):
+        # Only 'tickers' is required. The others default to '' instead of None, otherwise the API calls won't work.
+        # Address of the API
+        base = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+
+        # Decide if the request is a time series or static request
+        if not start:
+            datekind = 'Snapshot'
+            start = date  # For static requests, the value of 'date' needs to be put in to 'start'
+            # 'date' is not used in the actual request to the API, it is designed to make PyDSWS more intuitive.
+        else:
+            datekind = 'TimeSeries'
+
+        # Put all the fields in a request and encode them for requests.get
+        fields = {'token': self.token, 'instrument': tickers, 'datatypes': fields, 'datekind': datekind,
+                  'start': start, 'end': end, 'freq': freq}
+        parameters = urllib.parse.urlencode(fields)
+
+        # Construct the API call
+        url = base + parameters
+
+        # Retrieve data
+        response = requests.get(url)
+
+        # Format the data to JSON
+        response_json = json.loads(response.text)
+
+        # Run 'from_json_to_df()' to convert the JSON response to a Pandas DataFrame
+        df = self.from_json_to_df(response_json)
+
+        return df
 

@@ -1,7 +1,8 @@
 # PyDSWS
 Python: Datastream WebServices API (DSWS)
 
-Connect to the Thomson Reuters Datastream database via Datastream Web Services (DSWS). You need to have a Datastream subscription and a username/password to use this package. Please note that this package is under development. For the time being it is only possible to retrieve timeseries of a single instrument with a single data field per request.
+Connect to the Thomson Reuters Datastream database via Datastream Web Services (DSWS). You need to have a Datastream subscription and a username/password to use this package.
+Please note that this is not an official/supported package and it is still under development. Basic functionality is operational, error handling needs to be done.
 
 ### Installation
 PyDSWS is written in Python 3.
@@ -30,15 +31,17 @@ import PyDSWS
 
 ds = PyDSWS.Datastream(username='XXXXXXX', password='XXXXXXX')
 
-data = ds.get_data('VOD')
+df = ds.get_data('VOD')
 
-print(data)
+print(df)
 ```
 
 You can set parameters like this:
 ```
 get_data(tickers='VOD', fields='P', date_from='-10D', date_to='-0D', freq='D')
 ```
+*for multiple tickers/fields, just use a comma, for example: fields='P,MV'
+
 
 The output is a Pandas DataFrame:
 ```

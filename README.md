@@ -2,7 +2,7 @@
 Python: Datastream WebServices API (DSWS)
 
 Connect to the Thomson Reuters Datastream database via Datastream Web Services (DSWS). You need to have a Datastream subscription and a username/password to use this package.
-Please note that this is not an official/supported package and it is still under development. Basic functionality is operational, error handling needs to be done.
+Please note that this is an unofficial/unsupported package and it is still under development. The package has basic functionality and most of the error handling still needs to be done.
 
 ### Installation
 PyDSWS is written in Python 3.

@@ -36,27 +36,36 @@ df = ds.get_data('VOD')
 print(df)
 ```
 
-You can set parameters like this:
+Please find below examples on how to set parameters for the requests.
+
+For static data:
 ```
-get_data(tickers='VOD', fields='P', date_from='-10D', date_to='-0D', freq='D')
+get_data(tickers='VOD', fields='P', date='2017-01-01')
 ```
-*for multiple tickers/fields, just use a comma, for example: fields='P,MV'
+
+For time series:
+```
+get_data(tickers='VOD', fields='P,MV,VO', start='-10D', end='-0D', freq='D')
+```
+*for multiple tickers/fields, just use a comma. In this example: fields='P,MV,VO'
 
 
 The output is a Pandas DataFrame:
 ```
-          Date     VOD
-0   2017-11-10  217.65
-1   2017-11-13  216.00
-2   2017-11-14  227.05
-3   2017-11-15  228.35
-4   2017-11-16  228.45
-5   2017-11-17  228.70
-6   2017-11-20  229.50
-7   2017-11-21  229.75
-8   2017-11-22  228.75
-9   2017-11-23  225.40
-10  2017-11-24  225.50
+Instrument     VOD
+Field            P        MV       VO
+Date
+2017-11-21  229.75  61283.06  55100.4
+2017-11-22  228.75  61016.34  79602.5
+2017-11-23  225.40  60122.75  35724.1
+2017-11-24  225.50  60149.44  42918.0
+2017-11-27  224.60  59909.38  50355.3
+2017-11-28  226.45  60402.83  49027.0
+2017-11-29  225.25  60082.74  61618.1
+2017-11-30  224.30  59829.99  95423.4
+2017-12-01  224.00  59749.96  54855.4
+2017-12-04  225.55  60163.41  47524.1
+2017-12-05  225.25  60083.38  43846.7
 ```
 
 Please check http://datastream.thomsonreuters.com/DswsClient/Docs/Default.aspx for further documentation.

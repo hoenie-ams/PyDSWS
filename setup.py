@@ -8,8 +8,8 @@ setup(
     license='MIT',
     author='Joris Hoendervangers',
     author_email='j.h.hoendervangers@gmail.com',
-    description='Python package for Datastream Webservices',
-    long_description='Python package for Datastream Webservices',
+    description='Python package for Thomson Reuters Datastream Webservices (DSWS)',
+    long_description='Python package for Thomson Reuters Datastream Webservices (DSWS)',
     install_requires=[
         'pandas',
         'requests',

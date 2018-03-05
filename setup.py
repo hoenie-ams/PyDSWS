@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='PyDSWS',
-    version='0.06',
+    version='0.07',
     packages=['PyDSWS'],
     url='https://github.com/hoenie-ams/PyDSWS',
     license='MIT',

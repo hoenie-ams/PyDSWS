@@ -1,3 +1,10 @@
+"""
+PyDSWS
+
+@author: Joris Hoendervangers
+
+"""
+
 import requests
 import json
 import urllib.parse
@@ -35,7 +42,7 @@ class Datastream:
             dates = response_json['Dates']
             dates_converted = []
             for d in dates:
-                d = d[6:16]
+                d = d[6:-10]
                 d = float(d)
                 d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
                 dates_converted.append(d)
@@ -74,7 +81,7 @@ class Datastream:
     def get_data(self, tickers, fields='', date='', start='', end='', freq=''):
         # Only 'tickers' is required. The others default to '' instead of None, otherwise the API calls won't work.
         # Address of the API
-        base = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+        url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
 
         # Decide if the request is a time series or static request
         if not start:
@@ -87,19 +94,12 @@ class Datastream:
         # Put all the fields in a request and encode them for requests.get
         fields = {'token': self.token, 'instrument': tickers, 'datatypes': fields, 'datekind': datekind,
                   'start': start, 'end': end, 'freq': freq}
-        parameters = urllib.parse.urlencode(fields)
 
-        # Construct the API call
-        url = base + parameters
-
-        # Retrieve data
-        response = requests.get(url)
-
-        # Format the data to JSON
-        response_json = json.loads(response.text)
+        # Retrieve data and use the json native decoder
+        response = requests.get(url, params=fields).json()
 
         # Run 'from_json_to_df()' to convert the JSON response to a Pandas DataFrame
-        df = self.from_json_to_df(response_json)
+        df = self.from_json_to_df(response)
 
         return df
 

@@ -21,7 +21,7 @@ class Datastream:
     @staticmethod
     def get_token(username, password):
         # To get token, first set URL (HTTP Method: GET)
-        token_url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Token?' \
+        token_url = 'http://product.datastream.com/DSWSClient/V1/DSService.svc/rest/Token?' \
                     'username={0}&password={1}'.format(username, password)
 
         # Retrieve token

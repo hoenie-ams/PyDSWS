@@ -67,6 +67,11 @@ class Datastream:
                     if values == list:  # Time series
                         df[col] = pd.DataFrame(values).values
                     else:
+                        if 'Type' in i.keys():
+                            if i['Type']==4:
+                                if values[0:6]=='/Date(':
+                                    values = datetime.datetime.fromtimestamp(float(values[6:-10])).strftime('%Y-%m-%d')
+
                         df[col] = values  # Snapshot
 
                 except ValueError:  # In case of ValueError, fill the column with 'ERROR'
@@ -103,3 +108,19 @@ class Datastream:
 
         return df
 
+    def get_usage(self):
+        # Returns usage statistics.
+        # Address of the API
+        url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+
+        # Put all the fields in a request and encode them for requests.get
+        fields = {'token': self.token, 'instrument': 'STATS', 'datatypes': 'DS.USERSTATS', 'datekind': 'Snapshot',
+                  'start': '', 'end': '', 'freq': ''}
+
+        # Retrieve data and use the json native decoder
+        response = requests.get(url, params=fields).json()
+
+        # Run 'from_json_to_df()' to convert the JSON response to a Pandas DataFrame
+        df = self.from_json_to_df(response)
+
+        return df

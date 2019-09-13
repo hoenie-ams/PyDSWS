@@ -68,6 +68,19 @@ Date
 2017-12-05  225.25  60083.38  43846.7
 ```
 
+In order to get usage statistics call:
+```
+ds.get_usage()
+```
+
+The output is a Pandas DataFrame:
+```
+Instrument    STATS                                                           
+Field          User Hits Requests Datatypes Datapoints  Start Date    End Date
+Date                                                                          
+2019-06-26  ZMTXXXX  564      362      1319    1283696  2019-06-01  2019-07-01
+```
+
 Please check http://datastream.thomsonreuters.com/DswsClient/Docs/Default.aspx for further documentation.
 
 

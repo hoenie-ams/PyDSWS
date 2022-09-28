@@ -22,7 +22,7 @@ class Datastream:
     def get_token(username, password):
         # To get token, first set URL (HTTP Method: GET)
         token_url = 'http://product.datastream.com/DSWSClient/V1/DSService.svc/rest/Token?' \
-                    'username={0}&password={1}'.format(username, password)
+                        'username={0}&password={1}'.format(username, password)
 
         # Retrieve token
         token_raw = requests.get(token_url)
@@ -30,25 +30,20 @@ class Datastream:
         # Token to JSON format
         token_json = json.loads(token_raw.text)
 
-        # Extract token
-        token = token_json["TokenValue"]
-
-        return token
+        return token_json["TokenValue"]
 
     @staticmethod
     def from_json_to_df(response_json):
-        # If dates is not available, the request is not constructed correctly
-        if response_json['Dates']:
-            dates = response_json['Dates']
-            dates_converted = []
-            for d in dates:
-                d = d[6:-10]
-                d = float(d)
-                d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
-                dates_converted.append(d)
-        else:
+        if not response_json['Dates']:
             return 'Error - please check instruments and parameters (time series or static)'
 
+        dates = response_json['Dates']
+        dates_converted = []
+        for d in dates:
+            d = d[6:-10]
+            d = float(d)
+            d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
+            dates_converted.append(d)
         # Set up the DataFrame
         df = pd.DataFrame(index=dates_converted)
         df.index.name = 'Date'
@@ -67,10 +62,12 @@ class Datastream:
                     if values == list:  # Time series
                         df[col] = pd.DataFrame(values).values
                     else:
-                        if 'Type' in i.keys():
-                            if i['Type']==4:
-                                if values[0:6]=='/Date(':
-                                    values = datetime.datetime.fromtimestamp(float(values[6:-10])).strftime('%Y-%m-%d')
+                        if (
+                            'Type' in i.keys()
+                            and i['Type'] == 4
+                            and values[:6] == '/Date('
+                        ):
+                            values = datetime.datetime.fromtimestamp(float(values[6:-10])).strftime('%Y-%m-%d')
 
                         df[col] = values  # Snapshot
 
@@ -103,10 +100,7 @@ class Datastream:
         # Retrieve data and use the json native decoder
         response = requests.get(url, params=fields).json()
 
-        # Run 'from_json_to_df()' to convert the JSON response to a Pandas DataFrame
-        df = self.from_json_to_df(response)
-
-        return df
+        return self.from_json_to_df(response)
 
     def get_usage(self):
         # Returns usage statistics.
@@ -120,7 +114,4 @@ class Datastream:
         # Retrieve data and use the json native decoder
         response = requests.get(url, params=fields).json()
 
-        # Run 'from_json_to_df()' to convert the JSON response to a Pandas DataFrame
-        df = self.from_json_to_df(response)
-
-        return df
+        return self.from_json_to_df(response)

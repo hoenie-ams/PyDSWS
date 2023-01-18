@@ -26,7 +26,7 @@ An example how to retrieve closing prices for Vodafone.
 2) authenticate with your username and password
 3) use the 'get_data' function
 
-```
+```python
 import PyDSWS
 
 ds = PyDSWS.Datastream(username='XXXXXXX', password='XXXXXXX')
@@ -39,12 +39,12 @@ print(df)
 Please find below examples on how to set parameters for the requests.
 
 For static data:
-```
+```python
 ds.get_data(tickers='VOD', fields='P', date='2017-01-01')
 ```
 
 For time series:
-```
+```python
 ds.get_data(tickers='VOD', fields='P,MV,VO', start='-10D', end='-0D', freq='D')
 ```
 *for multiple tickers/fields, just use a comma. In this example: fields='P,MV,VO'
@@ -69,7 +69,7 @@ Date
 ```
 
 In order to get usage statistics call:
-```
+```python
 ds.get_usage()
 ```
 

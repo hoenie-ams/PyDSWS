@@ -1,7 +1,7 @@
 # PyDSWS
 Python wrapper for the Datastream Web Services API (DSWS)
 
-Connect to the Thomson Reuters Datastream database via Datastream Web Services. You need to have a Datastream subscription and a username/password to use this package.
+Connect to the Refinitiv Datastream database via Datastream Web Services. You need to have a Datastream subscription and a username/password to use this package.
 Please note that this is an unofficial/unsupported package and it is still under development. The package has basic functionality and most of the error handling still needs to be done.
 
 ### Installation
@@ -13,7 +13,7 @@ requests
 ```
 
 Installation:
-```
+```shell
 pip install PyDSWS
 ```
 
@@ -81,7 +81,7 @@ Date
 2019-06-26  ZMTXXXX  564      362      1319    1283696  2019-06-01  2019-07-01
 ```
 
-Please check http://datastream.thomsonreuters.com/DswsClient/Docs/Default.aspx for further documentation.
+Please check http://datastream.refinitiv.com/DswsClient/Docs/Default.aspx for further documentation.
 
 
 ### Resources

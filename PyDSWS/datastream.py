@@ -5,11 +5,11 @@ PyDSWS
 
 """
 
-import requests
-import json
-import urllib.parse
 import datetime
+import json
+
 import pandas as pd
+import requests
 
 
 class Datastream:
@@ -21,7 +21,7 @@ class Datastream:
     @staticmethod
     def get_token(username, password):
         # To get token, first set URL (HTTP Method: GET)
-        token_url = 'http://product.datastream.com/DSWSClient/V1/DSService.svc/rest/Token?' \
+        token_url = 'https://product.datastream.com/DSWSClient/V1/DSService.svc/rest/Token?' \
                     'username={0}&password={1}'.format(username, password)
 
         # Retrieve token
@@ -37,18 +37,16 @@ class Datastream:
 
     @staticmethod
     def from_json_to_df(response_json):
-        # If dates is not available, the request is not constructed correctly
-        if response_json['Dates']:
-            dates = response_json['Dates']
-            dates_converted = []
-            for d in dates:
-                d = d[6:-10]
-                d = float(d)
-                d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
-                dates_converted.append(d)
-        else:
+        if not response_json['Dates']:
             return 'Error - please check instruments and parameters (time series or static)'
 
+        dates = response_json['Dates']
+        dates_converted = []
+        for d in dates:
+            d = d[6:-10]
+            d = float(d)
+            d = datetime.datetime.fromtimestamp(d).strftime('%Y-%m-%d')
+            dates_converted.append(d)
         # Set up the DataFrame
         df = pd.DataFrame(index=dates_converted)
         df.index.name = 'Date'
@@ -67,10 +65,12 @@ class Datastream:
                     if values == list:  # Time series
                         df[col] = pd.DataFrame(values).values
                     else:
-                        if 'Type' in i.keys():
-                            if i['Type']==4:
-                                if values[0:6]=='/Date(':
-                                    values = datetime.datetime.fromtimestamp(float(values[6:-10])).strftime('%Y-%m-%d')
+                        if (
+                            'Type' in i.keys()
+                            and i['Type'] == 4
+                            and values[:6] == '/Date('
+                        ):
+                            values = datetime.datetime.fromtimestamp(float(values[6:-10])).strftime('%Y-%m-%d')
 
                         df[col] = values  # Snapshot
 
@@ -86,7 +86,7 @@ class Datastream:
     def get_data(self, tickers, fields='', date='', start='', end='', freq=''):
         # Only 'tickers' is required. The others default to '' instead of None, otherwise the API calls won't work.
         # Address of the API
-        url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+        url = 'https://product.datastream.com/DswsClient/V1/DSService.svc/rest/Data?'
 
         # Decide if the request is a time series or static request
         if not start:
@@ -111,7 +111,7 @@ class Datastream:
     def get_usage(self):
         # Returns usage statistics.
         # Address of the API
-        url = 'http://datastream.thomsonreuters.com/DswsClient/V1/DSService.svc/rest/Data?'
+        url = 'https://product.datastream.com/DswsClient/V1/DSService.svc/rest/Data?'
 
         # Put all the fields in a request and encode them for requests.get
         fields = {'token': self.token, 'instrument': 'STATS', 'datatypes': 'DS.USERSTATS', 'datekind': 'Snapshot',
